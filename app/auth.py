@@ -40,7 +40,7 @@ async def authenticate_user(email: EmailStr, password: str):
     user = await UserDAO.find_one_or_none(email=email)
     if not user or not verify_password(password, user.hashed_password):
         return None
-    if not user.is_active:  # Проверка на мягкое удаление
+    if not user.is_active:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN, detail="Account deactivated"
         )
