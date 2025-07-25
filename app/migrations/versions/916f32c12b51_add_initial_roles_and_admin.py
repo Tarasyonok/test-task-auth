@@ -76,6 +76,6 @@ def upgrade():
 
 
 def downgrade():
-    op.execute("DELETE FROM users WHERE email = 'admin@example.com'")
-    op.execute("DELETE FROM permissions WHERE id IN (1, 2, 3)")
-    op.execute("DELETE FROM roles WHERE id IN (1, 2)")
+    op.execute("DELETE FROM users")
+    op.execute("DELETE FROM permissions")
+    op.execute("DELETE FROM roles")
