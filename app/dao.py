@@ -1,5 +1,6 @@
 from app.database import async_session_maker
-from sqlalchemy import delete, insert, select
+from sqlalchemy import delete, insert, select, update
+from sqlalchemy.orm import selectinload
 from app.models import User, Role, Permission
 
 
@@ -9,7 +10,11 @@ class BaseDAO:
     @classmethod
     async def find_one_or_none(cls, **filter_by):
         async with async_session_maker() as session:
-            query = select(cls.model).filter_by(**filter_by)
+            query = (
+                select(cls.model)
+                .options(selectinload(User.role).selectinload(Role.permissions))
+                .filter_by(**filter_by)
+            )
             result = await session.execute(query)
             return result.scalar_one_or_none()
 
@@ -38,6 +43,24 @@ class BaseDAO:
 
 class UserDAO(BaseDAO):
     model = User
+
+    @classmethod
+    async def update(cls, user_id: int, **data):
+        from app.auth import get_password_hash
+
+        async with async_session_maker() as session:
+            if "password" in data:
+                data["hashed_password"] = get_password_hash(data.pop("password"))
+
+            query = (
+                update(cls.model)
+                .where(cls.model.id == user_id)
+                .values(**data)
+                .returning(cls.model)
+            )
+            result = await session.execute(query)
+            await session.commit()
+            return result.scalar_one()
 
 
 class RoleDAO(BaseDAO):

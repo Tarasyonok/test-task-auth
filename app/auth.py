@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta, timezone
 from passlib.context import CryptContext
 import jwt
+from typing import Annotated
 from pydantic import EmailStr
 from fastapi import HTTPException, status
 

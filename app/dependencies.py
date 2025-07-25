@@ -1,4 +1,4 @@
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, status, Cookie
 from fastapi.security import OAuth2PasswordBearer
 import jwt
 
@@ -9,7 +9,9 @@ from app.models import User
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
 
-async def get_current_user(token: str = Depends(oauth2_scheme)):
+async def get_current_user(
+    token: str | None = Cookie(default=None, alias="access_token")
+):
     try:
         payload = jwt.decode(
             token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM]
@@ -38,12 +40,12 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
         )
 
 
-def check_role(required_role: str):
-    async def role_checker(user: User = Depends(get_current_user)):
-        if user.role.name != required_role:
+def check_permission(permission: str):
+    async def _check_permission(user: User = Depends(get_current_user)):
+        if not any(p.name == permission for p in user.role.permissions):
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden"
             )
         return user
 
-    return role_checker
+    return _check_permission

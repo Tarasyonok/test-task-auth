@@ -1,0 +1,36 @@
+services:
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: test_task_auth
+    container_name: task_db
+    volumes:
+      - postgresdata:/var/lib/postgresql/data
+    env_file:
+      - .env-docker
+    ports:
+      - 5432:5432
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d test_task_auth"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  task:
+    image: task_app
+    build:
+      context: .
+    container_name: task_app
+    env_file:
+      - .env-docker
+    depends_on:
+      db:
+        condition: service_healthy
+    command: sh -c "alembic upgrade head && gunicorn app.main:app --workers 4 --worker-class uvicorn.workers.UvicornWorker --bind=0.0.0.0:8000"
+    ports:
+      - 8000:8000
+
+volumes:
+  postgresdata:
