@@ -1,12 +1,27 @@
 # Тестовое задание
 
+## Клонирование репозитория
+
+```bash
+git clone https://github.com/Tarasyonok/test-task-auth
+```
+
 ## Запуск в Docker
+
+```bash
+cd test-task-auth
+```
 
 ```bash
 docker-compose up -d --build
 ```
 
-## Описание endpoints
+## Проверка эндпоинтов
+
+Перейдите на [localhost:8000/docs](localhost:8000/docs), здесь вам доступны все эндпоинты.
+В базе зарегестрирован админ с email `admin@example.com` и паролем `AdminPass123!`
+
+## Описание эндпоинтов
 
 Вот подробное описание всех эндпоинтов аутентификации:
 
