@@ -1,12 +1,9 @@
 from fastapi import Depends, HTTPException, status, Cookie
-from fastapi.security import OAuth2PasswordBearer
 import jwt
 
 from app.config import settings
 from app.dao import UserDAO
 from app.models import User
-
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
 
 async def get_current_user(
